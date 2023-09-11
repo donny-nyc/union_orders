@@ -36,6 +36,10 @@ class DummyOrdersRepo implements OrdersRepo {
       throw new Error(`Index ${idx} is out of bounds`);
     }
 
+    if (idx < 0) {
+      throw new Error(`Index must be positive: ${idx}`);
+    }
+
     const key = Array.from(this.orders.keys())[idx];
 
     return this.orders.get(key) as Order;
@@ -52,10 +56,12 @@ class DummyOrdersRepo implements OrdersRepo {
     return order;
   }
 
-  public addItemToOrder(orderId: string, productId: string, count: number): void {
+  public addItemToOrder(orderId: string, productId: string, count: number): Order {
     const order = this.fetchOrderById(orderId);
 
     order.addItem(productId, count);
+
+    return order;
   }
 
   public removeItemFromOrder(orderId: string, productId: string): void {

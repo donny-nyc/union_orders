@@ -37,6 +37,8 @@ const mockOrders: Order[] = [
 
 const ordersController = OrdersController.newDummyOrdersController(mockOrders);
 
+const unhealthyOrdersController = OrdersController.newUnhealthyOrdersController();
+
 describe("orders controller getOrders", () => {
   it("returns orders successfully", () => {
     const ordersResponse = ordersController.getOrders(1, 11);
@@ -60,5 +62,74 @@ describe("orders controller getOrders", () => {
     expect(ordersResponse.failure).toBeTruthy();
 
     expect(ordersResponse.data).toBeUndefined();
+  });
+
+  it("handles a service error gracefully", () => {
+    const ordersResponse = unhealthyOrdersController.getOrders();
+
+    expect(ordersResponse.failure).toBeTruthy();
+    expect(ordersResponse.message).toEqual(new Error("Service Unavailable"));
+  });
+});
+
+describe("starting a new order", () => {
+  it("can create a new order", () => {
+    const orderResponse = ordersController.startNewOrder();
+
+    expect(orderResponse.failure).toBeFalsy();
+    expect(orderResponse.data!.order).not.toBeUndefined();
+
+    const orderId = orderResponse.data!.order.id;
+
+    const searchResponse = ordersController.getOrderById(orderId);
+
+    expect(searchResponse.failure).toBeFalsy();
+    expect(searchResponse.data!.order).not.toBeUndefined();
+  });
+
+  it("handles service errors gracefully", () => {
+    const orderResponse = unhealthyOrdersController.startNewOrder();
+
+    expect(orderResponse.failure).toBeTruthy();
+    expect(orderResponse.message).toEqual(new Error("Service Unavailable"));
+  });
+});
+
+describe("fetching an order by its id", () => {
+  it("fails if the ID isn't recognized", () => {
+    const orderResponse = ordersController.getOrderById("UNRECOGNIZED_ID");
+
+    expect(orderResponse.failure).toBeTruthy();
+    expect(orderResponse.message).toEqual(new Error("Order UNRECOGNIZED_ID not found"));
+  });
+
+  it("handles service errors gracefully", () => {
+    const orderResponse = unhealthyOrdersController.getOrderById("ORDER_ID");
+
+    expect(orderResponse.failure).toBeTruthy();
+    expect(orderResponse.message).toEqual(new Error("Service Unavailable"));
+  });
+});
+
+describe("fetching an order by its index", () => {
+  it("fails if the index isn't recognized", () => {
+    const orderResponse = ordersController.getOrderByIndex(100);
+
+    expect(orderResponse.failure).toBeTruthy();
+    expect(orderResponse.message).toEqual(new Error("Index 100 is out of bounds"));
+  });
+
+  it("fails if the index is not positive", () => {
+    const orderResponse = ordersController.getOrderByIndex(-1);
+
+    expect(orderResponse.failure).toBeTruthy();
+    expect(orderResponse.message).toEqual(new Error("Index must be positive: -1"));
+  });
+
+  it("handles service errors gracefully", () => {
+    const orderResponse = unhealthyOrdersController.getOrderByIndex(0);
+
+    expect(orderResponse.failure).toBeTruthy();
+    expect(orderResponse.message).toEqual(new Error("Service Unavailable"));
   });
 });

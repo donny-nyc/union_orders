@@ -9,7 +9,7 @@ export default interface OrdersRepo {
   addItemToOrder(
     orderId: string, 
     productId: string, 
-    count: number): void;
+    count: number): Order;
   removeItemFromOrder(orderId: string, productId: string): void;
   updateOrderItemCount(
     orderId: string, 

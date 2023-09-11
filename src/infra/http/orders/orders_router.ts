@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { ordersController } from '../../..';
 import {OrdersControllerResponse} from '../../../orders/orders_controller';
+import bodyParser from 'body-parser';
 
 const router = express.Router();
 
@@ -28,15 +29,42 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.post('/', async(req: Request, res: Response) => {
-  res.json({message: 'create order'});
+  const ordersResponse: OrdersControllerResponse = ordersController.startNewOrder();
+
+  if (ordersResponse.failure) {
+    return res.status(400).json({
+      message: ordersResponse.message,
+    });
+  }
+
+  res.json({
+    message: ordersResponse.message,
+    data: ordersResponse.data
+  });
 });
 
 router.delete('/', async(req: Request, res: Response) => {
   res.json({message: 'cancel order'});
 });
 
-router.put('/', async(req: Request, res: Response) => {
-  res.json({message: 'update order'});
+router.put('/add-to-order/:orderId', bodyParser.json(), async(req: Request, res: Response) => {
+  const orderId = req.params.orderId;
+  const productId = req.body.productId;
+  const count = req.body.count;
+
+  const ordersResponse: OrdersControllerResponse = ordersController.addProductToOrder(orderId, productId, count);
+
+  if (ordersResponse.failure) {
+    console.log('[add product to order] Failure:', ordersResponse.message);
+    return res.status(400).json({
+      message: ordersResponse.message
+    })
+  }
+
+  res.json({
+    message: ordersResponse.message, 
+    data: ordersResponse.data
+  });
 });
 
 export default router;
