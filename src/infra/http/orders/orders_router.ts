@@ -44,7 +44,24 @@ router.post('/', async(req: Request, res: Response) => {
 });
 
 router.delete('/', async(req: Request, res: Response) => {
-  res.json({message: 'cancel order'});
+  const orderId = req.params.orderId;
+
+  console.log('[delete order] ', orderId);
+
+  const ordersResponse: OrdersControllerResponse = ordersController.cancelOrder(orderId);
+
+  if (ordersResponse.failure) {
+    return res.status(400).json({
+      message: ordersResponse.message,
+    });
+  }
+
+  res.json({
+    message: `order ${orderId} cancelled`,
+    data: {
+      id: orderId
+    }
+  });
 });
 
 router.put('/add-to-order/:orderId', bodyParser.json(), async(req: Request, res: Response) => {

@@ -8,6 +8,7 @@ class DummyOrdersRepo implements OrdersRepo {
 
   public fetchOrderById(id: string): Order {
     if(!this.orders.has(id)) {
+      console.error(this.orders.keys());
       throw new Error(`Order ${id} not found`);
     }
 
@@ -74,6 +75,12 @@ class DummyOrdersRepo implements OrdersRepo {
     const order = this.fetchOrderById(orderId);
 
     order.addItem(productId, count);
+  }
+
+  public updateOrder(order: Order): void {
+    const orderId: string = order.id;
+
+    this.orders.set(orderId, order);
   }
 
   public static newDummyOrdersRepo(): DummyOrdersRepo {

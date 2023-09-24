@@ -1,8 +1,15 @@
 import OrderItem from "./order_item";
 
+export enum OrderStatus {
+  OPEN = "OPEN",
+  CANCELLED = "CANCELLED",
+  PENDING = "PENDING"
+};
+
 export default class Order {
   public readonly id: string;
   public readonly index: number;
+  private status: OrderStatus = OrderStatus.OPEN;
 
   public readonly products: Map<string, OrderItem> = new Map<string, OrderItem>();
 
@@ -13,6 +20,22 @@ export default class Order {
     if (products) {
       this.products = products
     }
+  }
+
+  public getStatus(): OrderStatus {
+    return this.status;
+  }
+
+  public cancel(): void {
+    this.status = OrderStatus.CANCELLED;
+  }
+
+  public makePending(): void {
+    this.status = OrderStatus.PENDING;
+  }
+
+  public reopen(): void {
+    this.status = OrderStatus.OPEN;
   }
 
   public addItem(productId: string, count: number) {

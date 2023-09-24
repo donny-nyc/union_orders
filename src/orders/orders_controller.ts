@@ -141,8 +141,31 @@ class OrdersController {
         order
       }
     }
+  }
 
+  public cancelOrder(orderId: string): OrdersControllerResponse {
+    let order: Order;
 
+    try {
+      order = this.repository.fetchOrderById(orderId);
+
+      order.cancel();
+
+      this.repository.updateOrder(order);
+    } catch (e: any) {
+      return {
+        message: e,
+        failure: true
+      }
+    }
+
+    return {
+      message: `order ${orderId} cancelled`,
+      failure: false,
+      data: {
+        orderId: orderId
+      }
+    }
   }
 
   private seed(orders: Order[]): void {

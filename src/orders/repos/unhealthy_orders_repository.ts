@@ -36,6 +36,10 @@ class UnhealthyOrdersRepo implements OrdersRepo {
     throw new Error('Service Unavailable');    
   }
 
+  updateOrder(_: Order): void {
+    throw new Error('Service Unavailable');
+  }
+
   public static newUnhealthyOrdersRepo(): UnhealthyOrdersRepo {
     return new UnhealthyOrdersRepo();
   }
