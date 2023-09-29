@@ -1,5 +1,5 @@
 import OrdersController from "../../src/orders/orders_controller"
-import Order from "../../src/orders/types/order";
+import Order, {OrderStatus} from "../../src/orders/types/order";
 import OrderItem from "../../src/orders/types/order_item";
 
 const randomId = (max: number = 10000): number => {
@@ -131,5 +131,27 @@ describe("fetching an order by its index", () => {
 
     expect(orderResponse.failure).toBeTruthy();
     expect(orderResponse.message).toEqual(new Error("Service Unavailable"));
+  });
+});
+
+describe("cancelling an order", () => {
+  it("marks the given order as 'CANCELLED'", () => {
+    const orderResponse = ordersController.startNewOrder();
+
+    const orderId = orderResponse.data!.order.id;
+
+    ordersController.cancelOrder(orderId);
+
+    const cancelledResponse = ordersController.getOrderById(orderId);
+
+    const cancelled = cancelledResponse.data.order;
+
+    expect(cancelled.status).toEqual(OrderStatus.CANCELLED);
+  });
+
+  it("fails if the order cannot be found", () => {
+    const cancelledResponse = ordersController.cancelOrder("CANCEL_ORDER");
+
+    expect(cancelledResponse.failure).toBeTruthy();
   });
 });

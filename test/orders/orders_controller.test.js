@@ -1,10 +1,33 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const orders_controller_1 = __importDefault(require("../../src/orders/orders_controller"));
-const order_1 = __importDefault(require("../../src/orders/types/order"));
+const order_1 = __importStar(require("../../src/orders/types/order"));
 const order_item_1 = __importDefault(require("../../src/orders/types/order_item"));
 const randomId = (max = 10000) => {
     return Math.floor(Math.random() * max);
@@ -99,5 +122,19 @@ describe("fetching an order by its index", () => {
         const orderResponse = unhealthyOrdersController.getOrderByIndex(0);
         expect(orderResponse.failure).toBeTruthy();
         expect(orderResponse.message).toEqual(new Error("Service Unavailable"));
+    });
+});
+describe("cancelling an order", () => {
+    it("marks the given order as 'CANCELLED'", () => {
+        const orderResponse = ordersController.startNewOrder();
+        const orderId = orderResponse.data.order.id;
+        ordersController.cancelOrder(orderId);
+        const cancelledResponse = ordersController.getOrderById(orderId);
+        const cancelled = cancelledResponse.data.order;
+        expect(cancelled.status).toEqual(order_1.OrderStatus.CANCELLED);
+    });
+    it("fails if the order cannot be found", () => {
+        const cancelledResponse = ordersController.cancelOrder("CANCEL_ORDER");
+        expect(cancelledResponse.failure).toBeTruthy();
     });
 });
