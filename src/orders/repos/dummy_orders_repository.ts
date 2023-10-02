@@ -24,7 +24,9 @@ class DummyOrdersRepo implements OrdersRepo {
   }
 
   public paginatedFetchOrders(page: number, size: number): Order[] {
-    const orderEntries: Order[]  = Array.from(this.orders.entries()).slice((page-1) * size, page * size)
+    const orderEntries: Order[]  
+      = Array.from(this.orders.entries())
+      .slice((page-1) * size, page * size)
       .map(pair => {
         return pair[1];
       });
@@ -55,26 +57,6 @@ class DummyOrdersRepo implements OrdersRepo {
     this.orders.set(id, order);
 
     return order;
-  }
-
-  public addItemToOrder(orderId: string, productId: string, count: number): Order {
-    const order = this.fetchOrderById(orderId);
-
-    order.addItem(productId, count);
-
-    return order;
-  }
-
-  public removeItemFromOrder(orderId: string, productId: string): void {
-    const order = this.fetchOrderById(orderId);
-
-    order.removeItem(productId);
-  }
-
-  public updateOrderItemCount(orderId: string, productId: string, count: number): void {
-    const order = this.fetchOrderById(orderId);
-
-    order.addItem(productId, count);
   }
 
   public updateOrder(order: Order): void {
