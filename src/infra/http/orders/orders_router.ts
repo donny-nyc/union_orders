@@ -23,7 +23,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
   res.json({
     message: 'order found',
-    order
+    order: order.json()
   });
 });
 
