@@ -7,6 +7,9 @@ class DummyOrdersRepo implements OrdersRepo {
   private constructor() {}
 
   public fetchOrderById(id: string): Order {
+    console.log(`[dummy_orders_repository] [fetchOrderById] id`,
+      id);
+
     if(!this.orders.has(id)) {
       console.error(this.orders.keys());
       throw new Error(`Order ${id} not found`);

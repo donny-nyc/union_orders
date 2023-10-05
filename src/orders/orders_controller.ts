@@ -129,7 +129,7 @@ class OrdersController {
     try {
       const order = this.repository.startNewOrder();  
 
-      console.log(`[startNewOrder] order created: ${order}`);
+      console.log("[orders_controller] [startNewOrder] order created", order);
 
       return order;
     } catch (e: any) {
@@ -156,7 +156,8 @@ class OrdersController {
 
       this.repository.updateOrder(order);
 
-      console.log(`[cancelOrder] success: ${order}`);
+      console.log('[orders controller] [cancelOrder] success',
+        order);
 
       return order;
     } catch (e: any) {

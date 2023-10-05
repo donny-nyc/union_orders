@@ -9,6 +9,24 @@ router.use((req, _, next) => {
   next();
 });
 
+router.get('/:id', async (req: Request, res: Response) => {
+  const orderId: string = req.params.id;
+
+  const order = ordersController.getOrderById(orderId);
+
+  if (!order) {
+    console.error(`error: failed to fetch order: ${orderId}`);
+    return res.status(404).json({
+      message: 'order not found'
+    });
+  }
+
+  res.json({
+    message: 'order found',
+    order
+  });
+});
+
 router.get('/', async (req: Request, res: Response) => {
   const page: number = parseInt(req.query.page as string) || 1;
   const size: number = parseInt(req.query.size as string) || 10;
@@ -38,6 +56,8 @@ router.post('/', async(_req: Request, res: Response) => {
       message: 'failed to start a new order',
     });
   }
+  
+  console.log('new order', order);
 
   res.json({
     message: 'new order started',
@@ -45,7 +65,7 @@ router.post('/', async(_req: Request, res: Response) => {
   });
 });
 
-router.delete('/', async(req: Request, res: Response) => {
+router.delete('/:orderId', async(req: Request, res: Response) => {
   const orderId = req.params.orderId;
 
   console.log('[cancel order] ', orderId);
@@ -65,10 +85,29 @@ router.delete('/', async(req: Request, res: Response) => {
   });
 });
 
-router.put('/add-to-order/:orderId', bodyParser.json(), async(req: Request, res: Response) => {
+router.put('/:orderId/add-to-order', bodyParser.json(), async(req: Request, res: Response) => {
+  console.log('[orders] [put] /add-to-order', req.params);
   const orderId = req.params.orderId;
   const productId = req.body.productId;
   const count = req.body.count;
+
+  const errors: Record<string, string[]> = {}
+
+  if (!productId) {
+    errors['productId'] = ['productId missing'];
+  }
+
+  if (!count) {
+    errors['count'] = ['count missing'];
+  }
+
+  if (Object.keys(errors).length) {
+    console.error(errors);
+
+    return res.status(400).json({
+      errors
+    });
+  }
 
   console.log(`[add item to order] order: ${orderId}, productId: ${productId}, count: ${count}`);
 
@@ -81,9 +120,11 @@ router.put('/add-to-order/:orderId', bodyParser.json(), async(req: Request, res:
     })
   }
 
+  console.log('[add item to order] updated', order.json());
+
   res.json({
     message: 'order updated', 
-    order
+    order: order.json()
   });
 });
 
