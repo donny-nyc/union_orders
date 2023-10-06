@@ -3,11 +3,110 @@ import DummyOrdersRepo from './repos/dummy_orders_repository';
 import UnhealthyOrdersRepo from './repos/unhealthy_orders_repository';
 import Order from "./types/order";
 
-class OrdersController {
+interface OrdersControllerI {
+  removeItemFromOrder: (
+    orderId: string, 
+    productId: string
+  ) => Order | void;
+  addProductToOrder: (
+    orderId: string,
+    productId: string,
+    count: number
+  ) => Order | void;
+  getOrders: (
+    page: number,
+    size: number
+  ) => Order[] | void;
+  incrementItem: (
+    orderId: string,
+    productId: string
+  ) => Order | void;
+  decrementItem: (
+    orderId: string,
+    productId: string
+  ) => Order | void;
+}
+
+class OrdersController implements OrdersControllerI {
   private repository: OrdersRepo;
 
   private constructor(repo: OrdersRepo) {
     this.repository = repo;
+  }
+
+  public incrementItem(
+    orderId: string,
+    productId: string,
+  ): Order | void {
+    console.log(
+      '[Orders Controller][Increment Item]',
+      orderId,
+      productId
+    );
+
+    try {
+      const order = this.repository.fetchOrderById(orderId);
+
+      order.incrementItem(productId);
+
+      console.log('order updated', order);
+
+      this.repository.updateOrder(order);
+
+      return order;
+    } catch (e: any) {
+      console.error(e.message);
+    }
+  }
+
+  public decrementItem(
+    orderId: string,
+    productId: string,
+  ): Order | void {
+    console.log(
+      '[Orders Controller][Increment Item]',
+      orderId,
+      productId
+    );
+
+    try {
+      const order = this.repository.fetchOrderById(orderId);
+
+      order.decrementItem(productId);
+
+      console.log('order updated', order);
+
+      this.repository.updateOrder(order);
+
+      return order;
+    } catch (e: any) {
+      console.error(e.message);
+    }
+  }
+  
+  public removeItemFromOrder(
+    orderId: string,
+    productId: string
+  ): Order | void {
+    console.log(
+      '[Orders Controller][Remove Item from Order]',
+      orderId,
+      productId
+    );
+
+    try {
+      const order = this.repository.fetchOrderById(orderId);
+
+      order.removeItem(productId);
+
+      console.log('order updated', order);
+
+      this.repository.updateOrder(order);
+
+      return order;
+    } catch (e: any) {
+      console.error('[Orders Controller] add item to order failed', e);
+    }
   }
 
   /**
@@ -34,6 +133,8 @@ class OrdersController {
       const order = this.repository.fetchOrderById(orderId);
 
       order.addItem(productId, count);
+
+      this.repository.updateOrder(order);
 
       console.log('[Orders Controller] item added to order', order);
 

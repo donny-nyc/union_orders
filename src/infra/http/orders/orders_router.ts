@@ -85,7 +85,36 @@ router.delete('/:orderId', async(req: Request, res: Response) => {
   });
 });
 
-router.put('/:orderId/add-to-order', bodyParser.json(), async(req: Request, res: Response) => {
+router.delete(
+  '/:orderId/remove-item/:productId', 
+  async (req: Request, res: Response) => {
+    const orderId = req.params.orderId;
+    const productId = req.params.productId;
+
+    console.log('[remove from order]', orderId, productId);
+
+    const updatedOrder 
+      = ordersController.removeItemFromOrder(orderId, productId);
+
+    if (!updatedOrder) {
+      console.error('[remove-item]Failed to remove item from order');
+      return res.status(400).json({
+        message: 'Failed to remove item'
+      });
+    }
+
+    console.log('[remove-item] item removed from order', updatedOrder);
+
+    res.json({
+      message: 'Item removed',
+      order: updatedOrder,
+    });
+});
+
+router.put(
+  '/:orderId/add-to-order', 
+  bodyParser.json(), 
+  async(req: Request, res: Response) => {
   console.log('[orders] [put] /add-to-order', req.params);
   const orderId = req.params.orderId;
   const productId = req.body.productId;
@@ -109,9 +138,13 @@ router.put('/:orderId/add-to-order', bodyParser.json(), async(req: Request, res:
     });
   }
 
-  console.log(`[add item to order] order: ${orderId}, productId: ${productId}, count: ${count}`);
+  console.log(
+    `[add item to order] order: ${orderId}, 
+    productId: ${productId}, count: ${count}`
+  );
 
-  const order = ordersController.addProductToOrder(orderId, productId, count);
+  const order 
+      = ordersController.addProductToOrder(orderId, productId, count);
 
   if (!order) {
     console.error('failed to add products to order');
@@ -125,6 +158,55 @@ router.put('/:orderId/add-to-order', bodyParser.json(), async(req: Request, res:
   res.json({
     message: 'order updated', 
     order: order.json()
+  });
+});
+
+router.put(
+  '/:orderId/increment/:productId',
+  async (req: Request, res: Response) => {
+  const orderId = req.params.orderId;
+  const productId = req.params.productId;
+
+  console.log('[increment]', orderId, productId);
+
+  const order
+    = ordersController.incrementItem(orderId, productId);
+
+  if (!order) {
+    console.error('[increment] failed');
+    return res.status(400).json({
+      message: 'failed to increment item count'
+    });
+  }
+
+  res.json({
+    message: 'item count incremented',
+    order
+  });
+});
+
+
+router.put(
+  '/:orderId/decrement/:productId',
+  async (req: Request, res: Response) => {
+  const orderId = req.params.orderId;
+  const productId = req.params.productId;
+
+  console.log('[decrement]', orderId, productId);
+
+  const order
+    = ordersController.decrementItem(orderId, productId);
+
+  if (!order) {
+    console.error('[decrement] failed');
+    return res.status(400).json({
+      message: 'failed to decrement item count'
+    });
+  }
+
+  res.json({
+    message: 'item count decremented',
+    order
   });
 });
 

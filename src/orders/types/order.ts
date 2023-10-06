@@ -53,6 +53,24 @@ export default class Order {
     this.items.set(productId, item);
   }
 
+  public incrementItem(productId: string) {
+    if (!this.items.has(productId)) {
+      console.error('[increment] item not found', productId);
+      return;
+    }
+
+    this.items.get(productId)?.increment();
+  }
+
+  public decrementItem(productId: string) {
+    if (!this.items.has(productId)) {
+      console.error('[decrement] item not found', productId);
+      return;
+    }
+
+    this.items.get(productId)?.decrement();
+  }
+
   public json() {
     const items: Record<string, OrderItem> = {};
 
